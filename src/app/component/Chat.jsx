@@ -1,39 +1,87 @@
 'use client'
 import { useMutation, useQuery } from '@tanstack/react-query';
-import {React, useState } from 'react'
+import {React, useEffect, useState } from 'react'
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 
 export default function Chat() {
-  const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState('');
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [sessionId, setSessionId] = useState('')
+
+    useEffect(() => {
+    let storedId = localStorage.getItem('chat-session-id');
+    if (!storedId) {
+      storedId = uuidv4();
+      localStorage.setItem('chat-session-id', storedId);
+    }
+    setSessionId(storedId);
+    }, []);
+
+   useEffect(() => {
+      if (!sessionId) return;
+
+      const fetchMessages = async () => {
+        const { data } = await axios.get(`/api/chat?sessionId=${sessionId}`);
+        setMessages(data.messages || []);
+      };
+
+      fetchMessages();
+    }, [sessionId]);
 
    const sendChat = async (message) => {
-        const { data } = await axios.post('/api/chat', {prompt : message});
-        console.log('sendChat response', data);
-        return data.response;
+        const { data } = await axios.post('/api/chat', {prompt : message, sessionId: sessionId });
+        console.log('sendChat response', data.data);
+        return data.data;
     }
 
-   
-
-    const mutation = useMutation({
-        mutationFn : sendChat,
-    });
+    const { mutateAsync, isPending, isError, error } = useMutation({
+        mutationFn: sendChat,
+      });
 
 
     const handleSubmit = async (e) => {
         console.log(message);
-        
-        e.preventDefault();
-        const response = await mutation.mutateAsync(message);
-        setMessages([...messages, { message : message, response: response }]);
-        setMessage("");
+            e.preventDefault();
+            if (!message.trim()) return;
+
+            const userMessage = { role: 'user', content: message };
+            setMessages((prev) => [...prev, userMessage]);
+            setMessage('');
+
+        try {
+          const assistantMessage = await mutateAsync(message);
+          setMessages((prev) => [
+            ...prev,
+            { role: 'assistant', content: assistantMessage },
+          ]);
+        } catch (err) {
+          console.error('Erreur lors de l’envoi du message', err);
+        }
     }
+
+   console.log(messages);
+   
 
   return (
      <div className="w-full max-w-2xl mx-auto h-[90vh] flex flex-col p-4 bg-white shadow-xl rounded-xl border border-gray-200">
       <div className="flex-1 overflow-y-auto space-y-4 p-2">
-        
+        <ul>
+        {messages.map((message,index, role)=>{
+            return( 
+            
+              <li key={index}>
+                {message.role === 'user' &&  <p><strong>👤 Toi :</strong> {message.content}</p>}
+                
+                 {message.role === 'assistant' &&  <p><strong>🤖 Assistant :</strong> {message.content}</p>} 
+                 
+              
+              </li>
+            
+           )
+        })}
+        </ul>
       </div>
 
       <form
@@ -54,7 +102,9 @@ export default function Chat() {
           type="submit"
           className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition"
         >
-         {/* {pending ? '...' : 'Envoyer'}  */}
+         { isPending ?
+          <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="none" stroke="#ffffff" stroke-width="4"><animate attributeName="r" from="20" to="0" dur="1.5s" begin="0s" repeatCount="indefinite"></animate><animate attributeName="opacity" from="1" to="0" dur="1.5s" begin="0s" repeatCount="indefinite"></animate></circle></svg>
+          : 'Envoyer'}
         </button>
       </form>
     </div>
