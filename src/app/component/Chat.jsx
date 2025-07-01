@@ -1,6 +1,6 @@
 'use client'
 import { useMutation, useQuery } from '@tanstack/react-query';
-import {React, useEffect, useState } from 'react'
+import {React, useEffect, useRef, useState } from 'react'
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,7 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 export default function Chat() {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-    const [sessionId, setSessionId] = useState('')
+    const [sessionId, setSessionId] = useState('');
+    const refScroll = useRef(null);
 
     useEffect(() => {
     let storedId = localStorage.getItem('chat-session-id');
@@ -40,6 +41,10 @@ export default function Chat() {
         mutationFn: sendChat,
       });
 
+     useEffect(() =>{
+        refScroll.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+     },[{refScroll}]) 
+
 
     const handleSubmit = async (e) => {
         console.log(message);
@@ -65,22 +70,19 @@ export default function Chat() {
    
 
   return (
-     <div className="w-full max-w-2xl mx-auto h-[90vh] flex flex-col p-4 bg-white shadow-xl rounded-xl border border-gray-200">
+     <div className="w-full max-w-2xl mx-auto h-[85vh] flex flex-col pb-6">
       <div className="flex-1 overflow-y-auto space-y-4 p-2">
         <ul>
         {messages.map((message,index, role)=>{
             return( 
             
-              <li key={index}>
-                {message.role === 'user' &&  <p><strong>👤 Toi :</strong> {message.content}</p>}
-                
-                 {message.role === 'assistant' &&  <p><strong>🤖 Assistant :</strong> {message.content}</p>} 
-                 
-              
-              </li>
-            
+              <li key={index} className='mb-5 rounded-4xl flex justify-end'>
+                {message.role === 'user' &&  <p className='p-3 rounded-xl bg-blue-200 shadow-xl w-3/4'><strong>🤔​ Moi :</strong> {message.content}</p>}
+                 {message.role === 'assistant' &&  <p className='p-3 rounded-xl '><strong>😺​ Chatbotai :</strong> {message.content}</p>} 
+              </li> 
            )
         })}
+        <li ref={refScroll}></li>
         </ul>
       </div>
 
@@ -88,10 +90,10 @@ export default function Chat() {
         onSubmit={(e) => {
           handleSubmit(e);
         }}
-        className="mt-4 flex items-center gap-2"
+        className="mt-4 flex items-center gap-2 p-5 bg-white shadow-xl rounded-xl border border-gray-200"
       >
         <textarea
-          className="flex-1 border rounded-xl p-3 resize-none text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 border border-gray-300 rounded-xl p-3 resize-none text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 "
           rows={1}
           placeholder="Écris ton message..."
           value={message}
@@ -103,7 +105,7 @@ export default function Chat() {
           className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition"
         >
          { isPending ?
-          <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="none" stroke="#ffffff" stroke-width="4"><animate attributeName="r" from="20" to="0" dur="1.5s" begin="0s" repeatCount="indefinite"></animate><animate attributeName="opacity" from="1" to="0" dur="1.5s" begin="0s" repeatCount="indefinite"></animate></circle></svg>
+          <svg width="30" height="30" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="none" stroke="#ffffff" strokeWidth="4"><animate attributeName="r" from="20" to="0" dur="1.5s" begin="0s" repeatCount="indefinite"></animate><animate attributeName="opacity" from="1" to="0" dur="1.5s" begin="0s" repeatCount="indefinite"></animate></circle></svg>
           : 'Envoyer'}
         </button>
       </form>
