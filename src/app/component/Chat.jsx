@@ -70,7 +70,7 @@ export default function Chat() {
    
 
   return (
-     <div className="inner-chat-container w-full max-w-2xl mx-auto h-[80vh]  flex flex-col pb-6">
+     <div className="w-full max-w-2xl mx-auto h-[80vh]  flex flex-col">
       <div className="flex-1 overflow-y-auto space-y-4 p-2">
         <ul>
         {messages.map((message,index, role)=>{
