@@ -19,7 +19,7 @@ export async function GET(request) {
 }
 
 const openai = new OpenAI({
-  apiKey: process.env.API_KEY,
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
 });
 
 export async function POST(request) {
