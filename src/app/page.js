@@ -3,7 +3,7 @@ import Chat from "./component/Chat";
 
 export default function Home() {
   return (
-    <main className="flex justify-center items-center flex-col pb-5 h-view">
+    <main className="flex justify-center items-center flex-col pb-5 h-screen">
       <header className="py-3 p-5 text-center">
         <Image
           src="/img/chatbotai-logo.png"
