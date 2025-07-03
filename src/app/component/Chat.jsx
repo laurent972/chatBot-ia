@@ -66,12 +66,12 @@ export default function Chat() {
         }
     }
 
-   console.log(messages);
+   //console.log(messages);
    
 
   return (
-     <div className="w-full max-w-2xl mx-auto h-[80vh]  flex flex-col">
-      <div className="flex-1 overflow-y-auto space-y-4 p-2">
+     <div className="w-full max-w-2xl mx-auto  flex flex-col h-[80vh]">
+      <div className="flex-1 overflow-y-auto space-y-2 p-2 ">
         <ul>
         {messages.map((message,index, role)=>{
             return( 
@@ -90,7 +90,7 @@ export default function Chat() {
         onSubmit={(e) => {
           handleSubmit(e);
         }}
-        className="mt-4 flex items-center gap-2 p-5 bg-white shadow-xl rounded-xl border border-gray-200"
+        className="mt-4 flex items-center gap-2 p-5 bg-white shadow-xl rounded-xl border border-gray-200 h-[100px] sticky bottom-0"
       >
         <textarea
           className="flex-1 border border-gray-300 rounded-xl p-3 resize-none text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 "
